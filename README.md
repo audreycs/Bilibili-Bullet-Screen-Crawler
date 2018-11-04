@@ -28,7 +28,7 @@ For example you can enter '6393448'. Then it will create a file named 'av6393448
 
 You can get bullet screen comments' information from the '.csv' file, which contains  context and time.
 ```
-时间(s)，内容
+时间(s)，内容
 314,就一直循环
 325,不恐怖
 497,山～丹～丹～滴那个开～花儿～哟～～
