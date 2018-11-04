@@ -15,7 +15,7 @@ import xml.dom.minidom
 ## 2. 使用方式
  Directely compile the file 'Crawler.py':
 ``` python
-python comment.py
+python Crawler.py
 ```
  Then it will ask you to input video's av number:
 ```
