@@ -10,6 +10,7 @@ import re
 import sys
 import requests
 import xml.dom.minidom
+import matplotlib
 ```
 
 ## 2. 使用方式
