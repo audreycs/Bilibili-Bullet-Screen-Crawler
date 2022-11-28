@@ -13,28 +13,28 @@ head = {
 def spider(av):
     url = 'https://bilibili.com/video/av' + str(av)
 
-    #输出视频地址
-    print("视频地址是:" + url)
+    # Print video address
+    print("video address:" + url)
 
-    #查看视频地址是否能访问
+    # Whether this address can be reached
     r = requests.get(url, headers = head, timeout=5)
     code = r.status_code
     if code == 200: 
-	    print("查看网页能否正常访问: OK 网站访问正常")
+	    print("Address is valid.")
     else:
-	    print("查看网页能否正常访问: Error 网站不能访问！")
-        #print("程序退出!")
+	    print("Address is invalid!")
+        #print("Program exists!")
 	    sys.exit(2)
 
-    #获取网页源代码
+    # Get the source code of the web page
     html = requests.get(url, headers = head)
 
-    #写进网页源代码
+    # Write into the source code of the web page
     fw = open(dirpath + "htmlcont.txt","w",encoding="utf-8")
     fw.write(html.text)
     fw.close()
 
-    print("获取视频网页源代码成功!")
+    print("Obtaining the source code of the video page successfully!")
 
     fr = open(dirpath + "htmlcont.txt","r",encoding="utf-8")
     line = fr.readline()
@@ -42,13 +42,13 @@ def spider(av):
         matchstr = re.search(r"cid=([0-9]*)&aid=",line)
         if matchstr!= None:
             fr.close()
-            print("获取视频弹幕成功!")
+            print("Successfully obtained the bullet screen!")
             return matchstr.group(1)
         line = fr.readline()
         
 def getcomments(cid):
     comment_url = 'http://comment.bilibili.com/'+str(cid)+'.xml'
-    print("弹幕文件为:"+comment_url)
+    print("file:"+comment_url)
 
     html = requests.get(comment_url)
     with open(dirpath + cid + ".xml", "wb") as code:
@@ -58,8 +58,8 @@ def getcomments(cid):
     dom = xml.dom.minidom.parse(url)
     root = dom.documentElement
     comments = root.getElementsByTagName('d')
-    print("解析弹幕的时间与内容中......")
-    f.writelines("时间(s)"+","+"评论内容"+"\n")
+    print("Parse the contents of the bullet screen...")
+    f.writelines("Time(s)"+","+"Comment"+"\n")
     for i in range(len(comments)):
         item = comments[i]
         attrs = item.getAttribute("p")
@@ -69,15 +69,15 @@ def getcomments(cid):
 
 
 if __name__ == '__main__':
-    av = input('请输入av号:')
+    av = input('Enter video number:')
     dirpath = "./av"+av+"/"
 
     if not os.path.exists(dirpath):
         os.mkdir(dirpath)
 
-    #爬取视频网页源文件
+    # Crawl video web page source files
     comment_id = spider(av)
 
     f = open(dirpath + comment_id + '.csv', 'w', encoding='utf-8')
     getcomments(comment_id)
-    print("结束!")
+    print("End!")
