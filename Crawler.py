@@ -14,41 +14,34 @@ def spider(av):
     url = 'https://bilibili.com/video/av' + str(av)
 
     # Print video address
-    print("video address:" + url)
+    print(f"video address: {url}")
 
-    # Whether this address can be reached
+    # Whether the video address is valid
     r = requests.get(url, headers = head, timeout=5)
     code = r.status_code
-    if code == 200: 
-	    print("Address is valid.")
-    else:
-	    print("Address is invalid!")
-        #print("Program exists!")
-	    sys.exit(2)
+    assert code == 200, "Address is invalid!"
 
     # Get the source code of the web page
     html = requests.get(url, headers = head)
 
-    # Write into the source code of the web page
-    fw = open(dirpath + "htmlcont.txt","w",encoding="utf-8")
-    fw.write(html.text)
-    fw.close()
+    # Write the source code
+    with open(dirpath + "htmlcont.txt","w",encoding="utf-8") as fw:
+        fw.write(html.text)
+	print("Obtaining the source code of the video page successfully!")
 
-    print("Obtaining the source code of the video page successfully!")
-
-    fr = open(dirpath + "htmlcont.txt","r",encoding="utf-8")
-    line = fr.readline()
-    while line:
-        matchstr = re.search(r"cid=([0-9]*)&aid=",line)
-        if matchstr!= None:
-            fr.close()
-            print("Successfully obtained the bullet screen!")
-            return matchstr.group(1)
+    # Read the source code
+    with open(dirpath + "htmlcont.txt","r",encoding="utf-8") as fr:
         line = fr.readline()
+        while line:
+            matchstr = re.search(r"cid=([0-9]*)&aid=",line)
+            if matchstr!= None:
+                print("Successfully obtained the bullet screen!")
+                return matchstr.group(1)
+            line = fr.readline()
         
-def getcomments(cid):
+def getcomments(cid, dirpath, comment_id):
     comment_url = 'http://comment.bilibili.com/'+str(cid)+'.xml'
-    print("file:"+comment_url)
+    print(f"file: {comment_url}")
 
     html = requests.get(comment_url)
     with open(dirpath + cid + ".xml", "wb") as code:
@@ -59,13 +52,15 @@ def getcomments(cid):
     root = dom.documentElement
     comments = root.getElementsByTagName('d')
     print("Parse the contents of the bullet screen...")
-    f.writelines("Time(s)"+","+"Comment"+"\n")
-    for i in range(len(comments)):
-        item = comments[i]
-        attrs = item.getAttribute("p")
-        time = attrs.split(",")[0]
-        comment = comments[i].firstChild.data
-        f.writelines(str(int(float(time)))+","+comment.split(",")[0]+"\n")
+
+    with open(dirpath + comment_id + '.csv', 'w', encoding='utf-8') as f:
+        f.writelines("Time(s)"+","+"Comment"+"\n")
+        for i in range(len(comments)):
+            item = comments[i]
+            attrs = item.getAttribute("p")
+            time = attrs.split(",")[0]
+            comment = comments[i].firstChild.data
+            f.writelines(str(int(float(time)))+","+comment.split(",")[0]+"\n")
 
 
 if __name__ == '__main__':
@@ -77,7 +72,6 @@ if __name__ == '__main__':
 
     # Crawl video web page source files
     comment_id = spider(av)
-
-    f = open(dirpath + comment_id + '.csv', 'w', encoding='utf-8')
-    getcomments(comment_id)
+    # Parse the video comments
+    getcomments(comment_id, dirpath, comment_id)
     print("End!")
